@@ -11,7 +11,6 @@ import {
   Keyboard
 } from "react-native";
 import Item from "./Item";
-import { useHeaderHeight } from "react-navigation-stack";
 
 export default function HomeScreen({ navigation }) {
   HomeScreen.navigationOptions = {
@@ -24,42 +23,9 @@ export default function HomeScreen({ navigation }) {
       fontWeight: "bold"
     }
   };
+  const [users, setUsers] = useState({});
   const [user, setUser] = useState({});
-  const [date, setDate] = useState("");
   const [expense, setExpense] = useState({});
-
-  const [data, setData] = useState([
-    {
-      id: "1",
-      title: "First Item",
-      ammount: 100
-    },
-    {
-      id: "2",
-      title: "Second Item",
-      ammount: 100
-    },
-    {
-      id: "3",
-      title: "Third Item",
-      ammount: 100
-    },
-    {
-      id: "4",
-      title: "Fourth Item",
-      ammount: 100
-    },
-    {
-      id: "5",
-      title: "Fifth Item",
-      ammount: 100
-    },
-    {
-      id: "6",
-      title: "Sixth Item",
-      ammount: 100
-    }
-  ]);
 
   const getDate = () => {
     let day = new Date().getDate();
@@ -68,24 +34,33 @@ export default function HomeScreen({ navigation }) {
     return { day: day, month: month, year: year };
   };
 
-  const addExpenses = () => {
+  const addExpenses = async () => {
     if (expense.title && expense.ammount) {
       expense.date = getDate();
       user.expenses.push(expense);
-      user.expenses.map((exp, idx) => (exp.id = toString(idx + 1)));
+      user.expenses.map((exp, idx) => {
+        exp.id = (idx + 1).toString();
+      });
+      users[user.idx] = user;
+      setUsers(users);
+      await AsyncStorage.setItem("users", JSON.stringify(users));
       setExpense({});
     } else {
       alert("Please enter the details.");
     }
   };
 
-  const deleteItem = id => {
-    console.log("working");
+  const deleteItem = async id => {
     const expensesFiltered = user.expenses.filter(item => item.id !== id);
     setUser({ ...user, expenses: expensesFiltered });
+    users[user.idx].expenses = expensesFiltered;
+    setUsers(users);
+    await AsyncStorage.setItem("users", JSON.stringify(users));
   };
 
-  const loadUserData = () => {
+  const loadUserData = async () => {
+    let usersArray = await AsyncStorage.getItem("users");
+    setUsers(JSON.parse(usersArray));
     let userParam = navigation.getParam("user");
     userParam = JSON.parse(userParam);
     if (!userParam.expenses) {
@@ -93,14 +68,16 @@ export default function HomeScreen({ navigation }) {
     }
     setUser(userParam);
   };
+  const aa = async () => {
+    const usersArray = await AsyncStorage.getItem("users");
+    console.log("jsndclksndclakncakn", JSON.parse(usersArray));
+  };
 
   const showMoreApp = () => {
     navigation.navigate("Other");
   };
 
   const signOutAsync = async () => {
-    let users = await AsyncStorage.getItem("users");
-    users = JSON.parse(users);
     users[user.idx].logged = false;
     await AsyncStorage.setItem("users", JSON.stringify(users));
     navigation.navigate("Auth");
@@ -130,7 +107,7 @@ export default function HomeScreen({ navigation }) {
         <Button title="Add" onPress={() => addExpenses()} />
         <Button title="Details" onPress={() => showMoreApp()} />
         <Button title="Sign Out" onPress={() => signOutAsync()} />
-        <Button title="Console Log" onPress={() => console.log(user)} />
+        <Button title="Console Log" onPress={() => aa()} />
         <FlatList
           data={user.expenses}
           renderItem={({ item }) => (
