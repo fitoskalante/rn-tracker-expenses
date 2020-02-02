@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   AsyncStorage,
   StyleSheet,
@@ -13,14 +13,13 @@ import {
 
 export default function SignInScreen({ navigation }) {
   SignInScreen.navigationOptions = {
-    title: "Please sign in"
-  };
-  let userObj = {
-    user: {
-      username: "",
-      password: "",
-      logged: "false",
-      expenses: []
+    title: "Please sign in",
+    headerStyle: {
+      backgroundColor: "#f4511e"
+    },
+    headerTintColor: "#fff",
+    headerTitleStyle: {
+      fontWeight: "bold"
     }
   };
 
@@ -44,15 +43,16 @@ export default function SignInScreen({ navigation }) {
     users = JSON.parse(users);
     if (!users) {
       alert("This user is not registered");
+      setCurrentUser({});
       return;
     }
     let foundUser = users.find(user => user.username === currentUser.username);
     if (!foundUser) {
       alert("This user is not registered");
+      setCurrentUser({});
+      return;
     } else if (foundUser.password === currentUser.password) {
       foundUser.logged = true;
-      console.log("logg", foundUser, users);
-      //   setCurrentUser(foundUser);
       const userIndex = users.findIndex(
         user => user.username === foundUser.username
       );
@@ -61,11 +61,14 @@ export default function SignInScreen({ navigation }) {
         users[userIndex] = foundUser;
       } else {
         alert("There has been an error. Please try again");
+        setCurrentUser({});
+        return;
       }
       await AsyncStorage.setItem("users", JSON.stringify(users));
       navigation.navigate("Home", { user: JSON.stringify(foundUser) });
     } else {
       alert("Password does not match. Try again.");
+      setCurrentUser({});
     }
   };
 
@@ -75,12 +78,14 @@ export default function SignInScreen({ navigation }) {
     users = JSON.parse(users);
     if (users === null) {
       const usersArray = [];
+      currentUser.expenses = [];
       usersArray.push(currentUser);
       await AsyncStorage.setItem("users", JSON.stringify(usersArray));
       Alert.alert(
         "Great!",
         "You have registered successfully! Now please Login"
       );
+      setCurrentUser({});
       return;
     }
 
@@ -94,15 +99,14 @@ export default function SignInScreen({ navigation }) {
         "Great!",
         "You have registered successfully! Now please Login"
       );
+      setCurrentUser({});
       return;
     }
     if (foundUser) {
       alert("Username taken!");
+      setCurrentUser({});
     }
   };
-  useEffect(() => {
-    // AsyncStorage.clear();
-  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
@@ -117,19 +121,22 @@ export default function SignInScreen({ navigation }) {
             onChangeText={text =>
               setCurrentUser({ ...currentUser, username: text })
             }
+            value={currentUser.username ? currentUser.username : ""}
           />
           <TextInput
             placeholder="Password"
+            secureTextEntry={true}
             style={styles.input}
             autoCorrect={false}
             spellCheck={false}
             onChangeText={text =>
               setCurrentUser({ ...currentUser, password: text })
             }
+            value={currentUser.password ? currentUser.password : ""}
           />
         </View>
         <View style={styles.buttonsContainer}>
-          <Button style={styles.button} title="Login" onPress={onSignIn} />
+          <Button style={styles.button} title="Sign In" onPress={onSignIn} />
           <Button style={styles.button} title="Register" onPress={onRegister} />
         </View>
       </View>
@@ -162,9 +169,5 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 10,
     width: 300
-  },
-  button: {
-    color: "#555",
-    backgroundColor: "red"
   }
 });

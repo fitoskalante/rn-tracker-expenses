@@ -9,17 +9,19 @@ import {
 
 export default function OtherScreen({ navigation }) {
   OtherScreen.navigationOptions = {
-    title: "Other Screen"
-  };
-
-  const signOutAsync = async () => {
-    await AsyncStorage.clear();
-    navigation.navigate("Auth");
+    title: "Details",
+    headerStyle: {
+      backgroundColor: "#f4511e"
+    },
+    headerTintColor: "#fff",
+    headerTitleStyle: {
+      fontWeight: "bold"
+    }
   };
 
   return (
     <View style={styles.container}>
-      <Button title="I'm done, sign me out" onPress={() => signOutAsync()} />
+      <Button title="Go back" onPress={() => navigation.goBack()} />
       <StatusBar barStyle="default" />
     </View>
   );
