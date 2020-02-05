@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    fontSize: 25,
+    fontSize: 30,
     marginBottom: 10,
     marginTop: 20
   },
@@ -186,17 +186,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 25,
     marginVertical: 10
-  },
-  titleList: {
-    fontSize: 20,
-    marginVertical: 0
-  },
-  item: {
-    padding: 20,
-    backgroundColor: "#f1e4e4",
-    marginVertical: 2,
-    width: 300,
-    borderRadius: 10,
-    height: 100
   }
 });

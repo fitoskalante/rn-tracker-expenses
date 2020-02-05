@@ -1,4 +1,4 @@
-import Item from "./Item";
+import Item from "../../components/Item";
 import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
@@ -60,7 +60,6 @@ export default function Details({ navigation }) {
         <>
           <Button title="Delete All Items" onPress={deleteAll} />
           <FlatList
-            style={styles.list}
             data={user.expenses}
             renderItem={({ item }) => (
               <Item
@@ -95,6 +94,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: "auto",
     marginBottom: "auto"
-  },
-  list: {}
+  }
 });
