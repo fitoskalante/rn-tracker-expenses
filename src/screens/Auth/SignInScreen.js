@@ -24,7 +24,6 @@ export default function SignInScreen({ navigation }) {
   };
 
   const [currentUser, setCurrentUser] = useState({});
-  const [userr, setUser] = useState({ name: "ok" });
 
   const validatedUsername = username => {
     if (username.length < 3) {

@@ -15,7 +15,6 @@ function AuthLoadingScreen({ navigation }) {
   const checkIfLogged = async () => {
     let users = await AsyncStorage.getItem("users");
     users = JSON.parse(users);
-    console.log("users", users);
     if (!users) {
       navigation.navigate("Auth");
     } else {

@@ -3,7 +3,6 @@ import {
   Button,
   StyleSheet,
   View,
-  FlatList,
   SafeAreaView,
   AsyncStorage,
   Text,
@@ -11,7 +10,7 @@ import {
   TouchableWithoutFeedback,
   Keyboard
 } from "react-native";
-import Item from "./Item";
+import { NavigationEvents } from "react-navigation";
 
 export default function HomeScreen({ navigation }) {
   HomeScreen.navigationOptions = {
@@ -24,6 +23,7 @@ export default function HomeScreen({ navigation }) {
       fontWeight: "bold"
     }
   };
+  const [reload, setReload] = useState(false);
   const [users, setUsers] = useState({});
   const [user, setUser] = useState({});
   const [expense, setExpense] = useState({});
@@ -35,20 +35,25 @@ export default function HomeScreen({ navigation }) {
       const todayExpenses = user.expenses.filter(
         exp => JSON.stringify(exp.date) === JSON.stringify(currentDate)
       );
-      if (!todayExpenses) {
+      if (todayExpenses.length === 0) {
         setTotalDayExpenses(0);
         return;
-      }
-      const sum = (accumulator, currentValue) => accumulator + currentValue;
-      const sumTotal = todayExpenses.map(exp => exp.ammount).reduce(sum);
-      console.log(typeof sumTotal);
-      if (!sumTotal) {
-        setTotalDayExpenses(0);
       } else {
-        setTotalDayExpenses(sumTotal);
+        const reducer = (accumulator, currentValue) =>
+          accumulator + currentValue;
+
+        const sumTotal = todayExpenses.map(exp => exp.ammount).reduce(reducer);
+        if (!sumTotal) {
+          setTotalDayExpenses(0);
+        } else {
+          setTotalDayExpenses(sumTotal);
+        }
       }
+    } else {
+      setTotalDayExpenses(0);
     }
   };
+
   const getDate = () => {
     let day = new Date().getDate();
     let month = new Date().getMonth() + 1;
@@ -74,27 +79,29 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  const deleteItem = async id => {
-    const expensesFiltered = user.expenses.filter(item => item.id !== id);
-    setUser({ ...user, expenses: expensesFiltered });
-    users[user.idx].expenses = expensesFiltered;
-    setUsers(users);
-    await AsyncStorage.setItem("users", JSON.stringify(users));
-  };
-
   const loadUserData = async () => {
     let usersArray = await AsyncStorage.getItem("users");
-    setUsers(JSON.parse(usersArray));
-    let userParam = navigation.getParam("user");
-    userParam = JSON.parse(userParam);
-    if (!userParam.expenses) {
-      userParam.expenses = [];
+    usersArray = JSON.parse(usersArray);
+    setUsers(usersArray);
+    if (Object.keys(user).length === 0) {
+      let userParam = navigation.getParam("user");
+      userParam = JSON.parse(userParam);
+      if (!userParam.expenses) {
+        userParam.expenses = [];
+      }
+      setUser(userParam);
+      return;
+    } else {
+      const updatedUser = usersArray.filter(u => u.username === user.username);
+      if (updatedUser[0].expenses.toString() === user.expenses.toString()) {
+      } else {
+        setUser(updatedUser[0]);
+      }
     }
-    setUser(userParam);
   };
 
-  const showMoreApp = () => {
-    navigation.navigate("Other");
+  const seeDetails = () => {
+    navigation.navigate("Other", { user: JSON.stringify(user) });
   };
 
   const signOutAsync = async () => {
@@ -106,55 +113,42 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     loadUserData();
     setCurrentDate(getDate());
-    getTotalExpensesForCurrentDay();
-  }, []);
+  }, [reload]);
 
   useEffect(() => {
     getTotalExpensesForCurrentDay();
-  }, [currentDate]);
+  }, [user]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>Hello {user.username}!</Text>
-        <View style={styles.totalContainer}>
-          <Text style={styles.subtitle}>Today you have spent:</Text>
-          <Text style={styles.subtitle}>$ {totalDayExpenses}</Text>
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Title"
-          textAlign={"center"}
-          value={expense.title ? expense.title : ""}
-          onChangeText={text => setExpense({ ...expense, title: text })}
-        />
-        <TextInput
-          style={styles.input}
-          keyboardType="number-pad"
-          placeholder="$ 0"
-          textAlign={"center"}
-          value={expense.ammount ? expense.ammount : ""}
-          onChangeText={text => setExpense({ ...expense, ammount: text })}
-        />
-        <Button title="Add" onPress={() => addExpenses()} />
-        <Button title="Details" onPress={() => showMoreApp()} />
-        <Button title="Sign Out" onPress={() => signOutAsync()} />
-        <Button title="Sign Out" onPress={() => console.log(user.expenses)} />
-
-        <FlatList
-          style={styles.list}
-          data={user.expenses}
-          renderItem={({ item }) => (
-            <Item
-              id={item.id}
-              title={item.title}
-              deleteItem={deleteItem}
-              ammount={item.ammount}
-            />
-          )}
-          keyExtractor={item => item.id}
-        />
-      </SafeAreaView>
+      <>
+        <NavigationEvents onWillFocus={() => setReload(!reload)} />
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>Hello {user.username}!</Text>
+          <View style={styles.totalContainer}>
+            <Text style={styles.subtitle}>Today you have spent:</Text>
+            <Text style={styles.subtitle}>$ {totalDayExpenses}</Text>
+            <Button title="Details" onPress={() => seeDetails()} />
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Title"
+            textAlign={"center"}
+            value={expense.title ? expense.title : ""}
+            onChangeText={text => setExpense({ ...expense, title: text })}
+          />
+          <TextInput
+            style={styles.input}
+            keyboardType="number-pad"
+            placeholder="$ 0"
+            textAlign={"center"}
+            value={expense.ammount ? expense.ammount.toString() : ""}
+            onChangeText={text => setExpense({ ...expense, ammount: text })}
+          />
+          <Button title="Add" onPress={() => addExpenses()} />
+          <Button title="Sign Out" onPress={() => signOutAsync()} />
+        </SafeAreaView>
+      </>
     </TouchableWithoutFeedback>
   );
 }
@@ -168,7 +162,7 @@ const styles = StyleSheet.create({
   totalContainer: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fc5185",
+    backgroundColor: "#ddd",
     padding: 20,
     borderRadius: 20,
     height: 200,
@@ -185,15 +179,14 @@ const styles = StyleSheet.create({
   title: {
     fontWeight: "bold",
     fontSize: 25,
-    marginVertical: 10
+    marginBottom: 10,
+    marginTop: 20
   },
   subtitle: {
     fontWeight: "bold",
     fontSize: 25,
-    marginVertical: 10,
-    color: "white"
+    marginVertical: 10
   },
-
   titleList: {
     fontSize: 20,
     marginVertical: 0

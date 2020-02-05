@@ -6,9 +6,12 @@ const AppStack = createStackNavigator(
   { Home: HomeScreen, Other: OtherScreen },
   {
     defaultNavigationOptions: {
-      headerTintColor: "#fff",
       headerStyle: {
-        backgroundColor: "#000"
+        backgroundColor: "#f4511e"
+      },
+      headerTintColor: "#fff",
+      headerTitleStyle: {
+        fontWeight: "bold"
       }
     },
     navigationOptions: {
