@@ -101,7 +101,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   const seeDetails = () => {
-    navigation.navigate("Other", { user: JSON.stringify(user) });
+    navigation.navigate("Details", { user: JSON.stringify(user) });
   };
 
   const signOutAsync = async () => {

@@ -1,46 +1,62 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 
-export default function Item({ title, deleteItem, id, ammount }) {
+export default function Item({ title, deleteItem, id, ammount, date }) {
   return (
-    <TouchableOpacity style={styles.item} onPress={() => console.log(id)}>
-      <View style={styles.container}>
-        <View>
-          <Text style={styles.titleList}>{title}</Text>
-          <Text style={styles.titleList}>$ {ammount}</Text>
-        </View>
-        <View>
-          <AntDesign
-            name="delete"
-            size={32}
-            color="red"
-            onPress={() => deleteItem(id)}
-          />
-        </View>
+    <View style={styles.container}>
+      <View style={styles.halfContainer}>
+        <Text style={styles.title}>{title}</Text>
+        <AntDesign
+          name="close"
+          size={25}
+          color="red"
+          onPress={() => deleteItem(id)}
+        />
       </View>
-    </TouchableOpacity>
+      <View style={styles.halfContainer}>
+        <Text style={styles.ammount}>$ {ammount}</Text>
+        <Text style={styles.date}>
+          {date.day}/{date.month}/{date.year}
+        </Text>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    flexDirection: "column",
+    justifyContent: "space-between",
+    marginHorizontal: 30,
+    marginVertical: 10,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    backgroundColor: "#f1e4e4"
+  },
+  halfContainer: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    marginVertical: 5
   },
-  item: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f1e4e4",
-    marginVertical: 5,
-    width: 300,
-    borderRadius: 10
-  },
-  titleList: {
+  title: {
     fontSize: 20,
     letterSpacing: 1,
     marginVertical: 5
+  },
+  ammount: {
+    fontSize: 20,
+    letterSpacing: 1,
+    marginVertical: 5,
+    fontWeight: "bold"
+  },
+  date: {
+    fontSize: 15,
+    letterSpacing: 1,
+    marginVertical: 5,
+    color: "gray"
   }
 });

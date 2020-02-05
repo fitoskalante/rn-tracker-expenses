@@ -1,9 +1,9 @@
 import { createStackNavigator } from "react-navigation-stack";
 import HomeScreen from "../screens/App/HomeScreen";
-import OtherScreen from "../screens/App/OtherScreen";
+import Details from "../screens/App/Details";
 
 const AppStack = createStackNavigator(
-  { Home: HomeScreen, Other: OtherScreen },
+  { Home: HomeScreen, Details: Details },
   {
     defaultNavigationOptions: {
       headerStyle: {

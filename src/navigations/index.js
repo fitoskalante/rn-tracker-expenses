@@ -29,7 +29,6 @@ function AuthLoadingScreen({ navigation }) {
 
   useEffect(() => {
     // AsyncStorage.clear();
-
     checkIfLogged();
   }, []);
 
